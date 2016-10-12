@@ -9,6 +9,7 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{hyperref}
+\usepackage{a4wide}
 \usepackage[show]{ed}
 
 \usepackage[english]{babel}
@@ -20,4 +21,106 @@
 \begin{document}
 \maketitle
 
+\section{Problem 1}
+\subsection{1a)}
+We assign \textbf{R1} IP address 198.51.100.1 on interface en1.1 and 203.0.113.1 on en1.2. Furthermore we configure the following forwarding table: \\
+
+\begin{tabular}{ l | l | l}
+  Prefix & Next Hop & Interface \\
+  \hline
+  198.51.100.3/32 & 198.51.100.3 & en1.1 \\
+  203.0.113.4/32 & 203.0.113.4 & en1.2 \\
+  \hline
+\end{tabular}
+
+We assign \textbf{R2} IP address 198.51.100.2 on interface en2.1 and 203.0.113.2 on en2.2. Furthermore we configure the following forwarding table:
+
+\begin{tabular}{ l | l | l}
+  Prefix & Next Hop & Interface \\
+  \hline
+  198.51.100.3/32 & 198.51.100.3 & en2.1 \\
+  203.0.113.4/32 & 203.0.113.4 & en2.2 \\
+  \hline
+\end{tabular}
+
+\subsection{1b)}
+
+In this scenario the following messages will be sent:
+\begin{enumerate}
+  \item A sends a TCP SYN from A to B.
+  \begin{itemize}
+    \item A makes an ARP query for the R1 ip adresss on en1.1 (198.51.100.1)
+    \item R1 responds with an ARP response $\text{mac}(en2.1)$
+    \item R1 makes an ARP request to the B ip adress on enB.0 (203.0.113.4)
+    \item B responds with an ARP response $\text{mac}(enB.0)$
+  \end{itemize}
+  \item B sends a TCP SYN-ACK from B to A.
+  \begin{itemize}
+    \item B makes an ARP request for the R2 ip adresss on en2.2 (203.0.113.2)
+    \item R2 responds with an ARP response $\text{mac}(en2.2)$
+    \item R2 makes an ARP request to the A ip adress on enA.0 (198.51.100.3)
+    \item A responds with an ARP response $\text{mac}(enA.0)$
+  \end{itemize}
+  \item A now sends a TCP ACK from A to B.
+  \item This procedure can then repeat.
+\end{enumerate}
+
+\begin{tabular}{ l | l | l | l | l | l | l }
+  no & segments & eth-src & eth-dst & ip-src & ip-dest & description \\\hline
+
+  % TCP SYN A -> B
+  1 & A, B, \dots & $\text{mac}(ena.0)$ & $\text{mac}()$ & $\text{ip}(ena.0)$ & $\text{ip}(en1.1)$ & ARP request $\text{ip}(en1.1)$  \\
+  2 & B, A, \dots & $\text{mac}(en1.1)$ & $\text{mac}(ena.0)$ & $\text{ip}(en1.1)$ & $\text{ip}(ena.0)$ & ARP response $\text{ip}(en1.1)$  \\
+  3 & A, B & $\text{mac}(ena.0)$ & $\text{mac}(enb.0)$ & ip(ena.0) & $\text{ip}(en1.1)$ & TCP SYN A $\rightarrow$ B (step 1)\\
+  4 & D, F, \dots & $\text{mac}(en1.2)$ & $\text{mac}()$ & $\text{ip}(en1.1)$ & $\text{ip}(enb.0)$ & ARP request $\text{ip}(enb.0)$)  \\
+  5 & F, D, \dots & $\text{mac}(enb.0)$ & $\text{mac}(en1.2)$ & $\text{ip}(enb.0)$ & $\text{ip}(en1.1)$ & ARP response $\text{ip}(enb.0)$)  \\
+  6 & D, F & $\text{mac}(en1.2)$ & $\text{mac}(enb.0)$  & $\text{ip}(ena.0)$ & $\text{ip}(enb.0)$ & TCP SYN A $\rightarrow$ B (step 2)\\\hline
+
+  % TCP SYN-ACK B -> A
+  7 & F, E, \dots & $\text{mac}(enb.0)$ & $\text{mac}()$ & $\text{ip}(enb.0)$ & $\text{ip}(en2.2)$ & ARP request $\text{ip}(en2.2)$  \\
+  8 & E, F, \dots & $\text{mac}(en2.2)$ & $\text{mac}(enb.0)$ & $\text{ip}(en2.2)$ & $\text{ip}(enb.0)$ & ARP response $\text{ip}(en2.2)$  \\
+  9 & E, F & $\text{mac}(enb.0)$ & $\text{mac}(en2.2)$ & $\text{ip}(enb.0)$ & $\text{ip}(ena.0)$ & TCP SYN-ACK B $\rightarrow$ A (step 1)  \\
+  10 & C, A, \dots & $\text{mac}(en2.1)$ & $\text{mac}()$ & $\text{ip}(en2.1)$ & $\text{ip}(ena.0)$ & ARP request $\text{ip}(ena.0)$ \\
+  11 & A, C, \dots & $\text{mac}(ena.0)$ & $\text{mac}(en2.1)$ & $\text{ip}(ena.0)$ & $\text{ip}(en2.1)$ & ARP response $\text{ip}(ena.0)$  \\
+  12 & C, A & $\text{mac}(en2.1)$ & $\text{mac}(ena.0)$ & $\text{ip}(enb.0)$ & $\text{ip}(ena.0)$ & TCP SYN-ACK B $\rightarrow$ A (step 2) \\\hline
+
+  % TCP ACK A -> B
+  13 & A, B & $\text{mac}(ena.0)$ & $\text{mac}(en1.1)$ & $\text{ip}(ena.0)$ & $\text{ip}(enb.0)$ & TCP ACK A $\rightarrow$ B (step 1)\\
+  14 & D, F & $\text{mac}(en1.2)$ & $\text{mac}(enb.0)$  & $\text{ip}(ena.0)$ & $\text{ip}(enb.0)$ & TCP ACK A $\rightarrow$ B (step 2)\\\hline
+
+  \hline
+\end{tabular}
+
+\subsection{1c)}
+Benefits:
+\begin{itemize}
+  \item it is easy to configure
+  \item traffic between A and B and B and A goes via different routes $\rightarrow$ each segment has to handle less traffic
+\end{itemize}
+Problems:
+\begin{itemize}
+  \item The routes can \textbf{only} reach A and B. If more nodes are connected, the network has to be reconfigured.
+\end{itemize}
+
+\section{Problem 2}
+
+\subsection{2a)}
+The longest prefix length in the tables is 2, so it is sufficient to check all prefixes of length 2 to check equivalence of $F_1$ and $F_2$. In $F_1$, we have
+\begin{itemize}
+  \item $00* \rightarrow R_2$
+  \item $01* \rightarrow R_1$
+  \item $10* \rightarrow R_2$
+  \item $11* \rightarrow R_3$
+\end{itemize}
+and in $F_2$ we have
+\begin{itemize}
+  \item $00* \rightarrow R_2$
+  \item $01* \rightarrow R_1$
+  \item $10* \rightarrow R_2$
+  \item $11* \rightarrow R_3$
+\end{itemize}
+Thus they are equivalent.
+
+\subsection{2b)}
+There is no equivalent forwarding forwarding table with less than four entries. As there are three different hosts involved in the routes, at least 3 entries are needed. Thus if there is a table with exactly 3 entires. But it is not possible to combine the two entries for $R_2$.
 \end{document}
