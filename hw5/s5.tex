@@ -1,0 +1,96 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{a4wide}
+\usepackage[show]{ed}
+
+\usepackage[english]{babel}
+
+\title{Computer Networks Fall 2016\\Problem Sheet \#5}
+\author{Tom Wiesing}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Problem 5a}
+
+\subsection{Problem}
+What is an SSH subsystem?
+
+\subsection{Solution}
+As described in the \textit{ssh man page} a subsystem (usually given in the form of a remote command with the \texttt{-s} flag) is is a software that provides faciltitates for ssh to be used as a secure transport layer for other applications.
+
+\section{Problem 5b}
+
+\subsection{Problem}
+
+What does the following configuration of user joe do? Explain each line in your own words.
+\begin{lstlisting}
+  Host            *
+  ControlMaster   auto
+  ControlPath     /users/joe/.ssh/%r@%h:%p
+  ControlPersist  10m
+\end{lstlisting}
+
+\subsection{Solution}
+
+This configuration allows multiple ssh clients to share a single connection.
+The first line makes sure that all following lines apply to connections to a host matching the pattern *, i.e. to all hosts.
+The second line tells SSH to automatically make use of existing connections or if they do not exist, to create a process running in the background without asking.
+The third line tells SSH where to store which process in the background is connected to which host.
+In this case it should be stored in a file \lstinline{/users/joe/.ssh/%r@%h:%p} where \lstinline{%r} will be replaced by the remote username, \lstinline{%h} will be replaced by the remote hostname and \lstinline{%p} will be replaced by the remote port.
+The final line tells ssh to terminate background processes 10 minutes after the initial connection using it has been terminated.
+
+\section{Problem 5c}
+
+\subsection{Problem}
+
+What is the effect and purpose of the following command? \begin{lstlisting}
+  ssh -nNt -L 8888:ieeexplore.ieee.org:80 joe@server.com
+\end{lstlisting} How many TCP connections are involved and what are their endpoints? Which TCP connection carries encrypted traffic, which TCP connection carry plaintext? In which situations is this useful?
+
+\subsection{Solution}
+The purpose of the command is to allow local TCP connections to port 8888 to be securely forwarded to the server at \texttt{server.com} and from there (unsecurely) forward them to port 80 on \texttt{ieeexplore.ieee.org}.
+
+We will now discuss the command one flag at a time.
+In general the command establishes a connection to \texttt{server.com} as a user \texttt{joe}.
+The \texttt{-n} command prevents any further input to the server from being read from \texttt{stdin}.
+The \texttt{-N} prevents any remote command (that would usually be started automatically) from being executed.
+The \texttt{-t} prevent a terminal from being allocated on the remote server.
+The \texttt{-L 8888:ieeexplore.ieee.org:80} enables the forwarding of TCP connections.
+This consists of three parts, the local port \texttt{8888}, the destination \texttt{ieeexplore.ieee.org} and the destination port \texttt{80}.
+
+Overall, the command sets up 1 TCP connection and 1 additional per local connection to \texttt{localhost:8888}.
+The first TCP connection is the one that establishes the ssh connection to \texttt{server.com}.
+This TCP connection carries encrypted traffic.
+Per (plaintext-carrying) connection to \texttt{localhost:8888}, the traffic is sent through the existing SSH TCP connection and then from \texttt{server.com} a new TCP connection to \texttt{ieeexplore.ieee.org} on port 80 is established.
+This connection is also carrying plaintext.
+
+
+\section{Problem 5d}
+
+\subsection{Problem}
+
+What is an SSH agent? What is the effect of the \texttt{-A} option in the following shell command? In which situations is this useful?
+
+\begin{lstlisting}
+  ssh -A joe@server.com
+\end{lstlisting}
+
+\subsection{Solution}
+
+An ssh agent is the part of SSH that takes care of authenticating the user on the remote server.
+With the \texttt{-A} flag, the agent is forwarded to the remote server.
+This allows any ssh connections started from the remote server to use any authentication method stored locally.
+This can be useful when using a server as an entry point to a system that is otherwise protected from the outside. 
+
+\end{document}
