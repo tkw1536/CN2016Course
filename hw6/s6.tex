@@ -1,0 +1,107 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{a4wide}
+\usepackage[show]{ed}
+
+\usepackage[english]{babel}
+
+\title{Computer Networks Fall 2016\\Problem Sheet \#6}
+\author{Tom Wiesing}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+A web browser has been used to fetch the web page \url{http://cnds.eecs.jacobs-university.de/}. The browser was started, the web page was fetched, and afterwards the browser was closed. The network traffic was recorded on the host running the web browser and the trace is provided in pcap format on the course web page. Analyze the trace and answer the following questions.
+
+\section{Problem 6a)}
+What are the two TCP endpoints involved in the main HTTP GET request to fetch the \url{http://cnds.eecs.jacobs-university.de/} resource?
+
+\subsection{Solution}
+
+\begin{itemize}
+  \item Source: 192.168.1.131, port 52135
+  \item Destination: 212.201.49.26, port 80
+\end{itemize}
+
+\section{Problem 6b)}
+
+Which web browser was used on which operating system? When was the web page fetched?
+What was the preferred language?
+
+\subsection{Solution}
+
+\begin{itemize}
+  \item Browser: Firefox 50.0 on Mac OS X 10.12
+  \item Time: Sat, 26 Nov 2016 08:49:41 GMT
+  \item Language: English (United States)
+\end{itemize}
+
+\section{Problem 6c)}
+
+What are the different resources that were fetched from cnds.eecs.jacobs-university.de in
+order to render the web page?
+
+\subsection{Solution}
+
+\begin{itemize}
+  \item /wp-content/themes/inove/js/base.js
+  \item /wp-content/themes/inove/js/menu.js
+  \item /wp-content/themes/inove/style.css
+  \item /Gruppenbilder/16012.0.B.JPG
+  \item /Gruppenbilder/13472.0.B.jpg
+  \item /wp-content/themes/inove/img/light.gif
+  \item /wp-content/themes/inove/img/header.jpg
+  \item /wp-content/themes/inove/img/menu.gif
+  \item /wp-content/themes/inove/img/searchbox.gif
+  \item /wp-content/themes/inove/img/sidesep.gif
+  \item /wp-content/themes/inove/img/main\_shadow.gif
+  \item /wp-content/themes/inove/img/icons.gif
+  \item /wp-content/themes/inove/img/sidebar\_shadow.gif
+  \item /wp-content/themes/inove/img/widgetsep.png
+  \item /wp-content/themes/inove/img/feeds.gif
+  \item /wp-content/themes/inove/img/footer.jpg
+  \item /wp-content/themes/inove/img/wp-logo.png
+\end{itemize}
+
+\section{Problem 6d)}
+Does the HTTP interaction with the \url{cnds.eecs.jacobs-university.de} server use persistent
+connections? Does the server use chunked encoding? Explain why or why not.
+
+\subsection{Solution}
+The HTTP interation uses a persistent connection. The server does not use a chunked encoding because the files are small enough to be sent inside one chunk.
+
+\section{Problem 6e)}
+
+What are the HTTP protocol versions used on top of the first two TCP connections? Which
+services are being accessed on the TCP endpoints?
+
+\subsection{Solution}
+HTTP 1.1 is used in the first two connections. They are accessing a webserver service and an oscp service.
+
+\section{Problem 6f)}
+
+To which service names does the X.509 certificate apply that is presented by the server in the second TCP connection?
+
+\subsection{Solution}
+
+The certificate has subject \url{secure.informaction.com}. It applies to an HTTPS Service.
+
+\section{Problem 6g)}
+
+What is the purpose of the 3rd and 4th TCP connection?
+
+\subsection{Solution}
+Allows to send multiple requests to the server at the same time (likely to speed up the loading process of the website).
+
+
+\end{document}
